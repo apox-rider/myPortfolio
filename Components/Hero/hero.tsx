@@ -8,7 +8,7 @@ const Hero = () => {
     middleName:"Rwegoshora",
     surName:"Apolinary",
     gitHub:"https://github.com/apox-rider",
-    image:"https://github.com/apox-rider.png",
+    image:"https://github.com/apox-rider.png ",
     email:"apolinaryavith@gmail.com",
     role:"Co-Founder and FullStack Developer at " + company,
   }
