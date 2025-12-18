@@ -1,24 +1,53 @@
-import React from 'react';
+"use client";   
+import React, { useRef, useState } from 'react';
 import Link from 'next/link';
 import { Link2, Mail, Phone, Store } from 'lucide-react';
-import Footer from '@/Components/Footer/footer';
+import emailjs from '@emailjs/browser'
 
 
-const ContactForm = () => {
-     const company=`Cosmic`
-     const mail=<Mail/>
-        const infor={
-            firstName:"Avith",
-            middleName:"Rwegoshora",
-            surName:"Apolinary",
-            gitHub:"https://github.com/apox-rider",
-            image:"https://github.com/apox-rider.png",
-            email:"apolinaryavith@gmail.com",
-            role:"Co-Founder and FullStack Developer at " + company,
-        }
-  const fullName=infor.firstName + " " + infor.middleName + " " + infor.surName;
+
+
+
+const ContactForm: React.FC = () =>{
+        const form = useRef<HTMLFormElement>(null);
+        const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+        
+        const sendEmail=(e: React.FormEvent<HTMLFormElement>) => {
+            e.preventDefault();
+            if (!form.current) return;
+            setStatus("sending");
+            
+            const SERVICE_ID=process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID!
+            const TEMPLATE_ID=process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID!
+            const PUBLIC_KEY= 'oWFeHT7mXMLkDC9pP'
+            
+            emailjs.sendForm(SERVICE_ID, TEMPLATE_ID, form.current, 
+                {publicKey: PUBLIC_KEY})
+                .then(()=>{
+                    setStatus('success');
+                    form.current?.reset();
+                    }, 
+                    (error) => {
+                    console.error('EmailJS error:',error);
+                    setStatus('error');
+                    });
+                    }
+
+    const company=`Cosmic`                     
+    const mail=<Mail/>
+    const infor={
+        firstName:"Avith",
+        middleName:"Rwegoshora",
+        surName:"Apolinary",
+        gitHub:"https://github.com/apox-rider",
+        image:"https://github.com/apox-rider.png",
+        email:"apolinaryavith@gmail.com",
+        role:"Co-Founder and FullStack Developer at " + company,
+    }
+const fullName=infor.firstName + " " + infor.middleName + " " + infor.surName;
+    
     return (
-        <form className="space-y-6">
+        <form ref={form} onSubmit={sendEmail} className="space-y-6"  >
             <h3 className="text-2xl font-bold text-gray-900">Send Me a Message</h3>
             
             <div>
@@ -59,10 +88,17 @@ const ContactForm = () => {
             
             <button 
                 type="submit" 
+                disabled= {status === 'sending'}
                 className="w-full bg-emerald-600 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-emerald-700 transition duration-300 transform hover:scale-[1.01]"
             >
-                Send Message
+                 {status==='sending' ? 'Sending...' : 'Send Message'}
             </button>
+             {status === 'success' && (
+                <p className="text-emerald-600 font-medium text-center bg-emerald-50 py-2 rounded">Message sent successfully!</p>
+            )}
+            {status === 'error' && (
+                <p className="text-red-600 font-medium text-center bg-red-50 py-2 rounded">Something went wrong. Please try again.</p>
+            )}
         </form>
     );
 }
